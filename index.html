@@ -395,7 +395,14 @@
       <p>If you run a financial institution or ZSE-listed company in Zimbabwe or across Southern Africa, and you suspect your data could be working harder — reach out. The first conversation is always free, and usually revealing.</p>
     </div>
     <div class="cta-right">
-      <a href="mailto:hello@fundertech.co.zw" class="btn-primary">Start the conversation</a>
+      <form id="contact-form" class="contact-form" novalidate>
+        <input type="text" name="name" placeholder="Name" autocomplete="name" required>
+        <input type="email" name="email" placeholder="Email" autocomplete="email" required>
+        <input type="text" name="company" placeholder="Company (optional)" autocomplete="organization">
+        <textarea name="message" placeholder="What are you trying to solve?" rows="3" required></textarea>
+        <button type="submit" class="btn-primary">Start the conversation</button>
+        <p class="form-status" id="form-status"></p>
+      </form>
       <a href="#services" class="btn-ghost">View services</a>
     </div>
   </div>
@@ -472,6 +479,41 @@
       if (entries[0].isIntersecting) animateResults();
     }, { threshold: 0.05 }).observe(grid);
   }
+})();
+</script>
+<script>
+(function () {
+  const form = document.getElementById('contact-form');
+  const status = document.getElementById('form-status');
+  if (!form) return;
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    const data = Object.fromEntries(new FormData(form));
+    status.textContent = 'Sending…';
+    status.className = 'form-status';
+
+    fetch('/api/contact', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    })
+      .then((r) => r.json().then((body) => ({ ok: r.ok, body })))
+      .then(({ ok, body }) => {
+        if (ok) {
+          status.textContent = "Message sent — we'll be in touch shortly.";
+          status.className = 'form-status success';
+          form.reset();
+        } else {
+          status.textContent = body.error || 'Something went wrong. Please try again.';
+          status.className = 'form-status error';
+        }
+      })
+      .catch(() => {
+        status.textContent = 'Network error. Please try again.';
+        status.className = 'form-status error';
+      });
+  });
 })();
 </script>
 </body>

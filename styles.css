@@ -538,6 +538,29 @@ section { border-bottom: 1px solid var(--grey-2); }
 .cta-left p { font-size: 12px; color: #4A4A4A; font-weight: 500; max-width: 440px; line-height: 1.9; }
 .cta-right { display: flex; flex-direction: column; gap: 16px; align-items: flex-end; flex-shrink: 0; }
 
+.contact-form { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 320px; }
+.contact-form input,
+.contact-form textarea {
+  background: transparent;
+  border: 1px solid var(--grey-4);
+  color: var(--white);
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 12px 14px;
+  resize: vertical;
+  transition: border-color 0.2s;
+  width: 100%;
+}
+.contact-form input::placeholder,
+.contact-form textarea::placeholder { color: var(--grey-3); }
+.contact-form input:focus,
+.contact-form textarea:focus { outline: none; border-color: var(--mint); }
+.contact-form button { width: 100%; }
+.form-status { font-size: 11px; color: var(--grey-3); min-height: 14px; }
+.form-status.success { color: var(--mint); }
+.form-status.error { color: #ff6b6b; }
+
 .btn-primary {
   display: inline-block;
   background: var(--mint);
