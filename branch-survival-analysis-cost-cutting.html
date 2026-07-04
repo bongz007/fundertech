@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reverse Engineering Branch Survival in the Cost-Cutting Era — Fundertech</title>
+<meta name="description" content="Most branch closure lists are built from a snapshot ranking of last quarter's footfall. Survival analysis asks a different, better question — and it's already sitting inside your churn model.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">
+    <a href="index.html" class="nav-logo">Funder<span>tech</span></a>
+    <span class="nav-live"><span class="live-dot"></span>live</span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="index.html#results">Results</a></li>
+    <li><a href="index.html#services">Services</a></li>
+    <li><a href="index.html#approach">Approach</a></li>
+    <li><a href="insights.html">Insights</a></li>
+    <li><a href="index.html#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<article>
+  <div class="article-hero">
+    <p class="article-eyebrow">Insights · Predictive Analytics</p>
+    <h1 class="article-title">Reverse Engineering Branch Survival in the Cost-Cutting Era</h1>
+    <div class="article-meta">
+      <span>Fundertech</span>
+      <span>·</span>
+      <span>Branch Network Rationalisation</span>
+      <span>·</span>
+      <span>8 min read</span>
+    </div>
+  </div>
+
+  <div class="article-body">
+    <p class="article-hook">Survival analysis was built to answer one question: how long until this patient dies, and what changes the odds? Swap "patient" for "branch" and "death" for "closure," and you have exactly the model most banks need right now — mid-way through a cost-cutting mandate, armed with nothing but a spreadsheet ranked by last quarter's footfall.</p>
+
+    <p>Every bank on the continent is under the same pressure right now: digital channels are eating transaction volume, rent and headcount aren't getting cheaper, and someone on the exco has been handed a target — cut the branch network by some percentage, by some date. The instruction that usually follows is dangerously simple: rank branches by transactions or profit last quarter, close the bottom of the list. It's fast, it's defensible in a slide, and it's the wrong tool for the job.</p>
+
+    <h2>The Business Challenge</h2>
+    <p>A snapshot ranking treats every branch's most recent quarter as the whole story. It can't tell the difference between a branch in permanent decline and a branch that dipped because a major employer in its catchment delayed payroll for six weeks. It can't tell you that the branch at the bottom of the list is also the only physical touchpoint for an agri-lending scheme three districts wide — the kind of client relationship covered under our own work with <a href="index.html#services" style="color:inherit;">MFIs and agri-lenders</a>. A blunt cut made on a single quarter's numbers is the branch-network version of the credit scorecard that ignores the "sleeping dog" effect: technically defensible, quietly self-defeating.</p>
+    <p>There's a second, subtler problem, and it's the one most cost-cutting exercises get wrong without realising it: almost none of your branches have actually closed yet. You're trying to model time-to-closure using a dataset where the vast majority of cases haven't experienced the event you're modelling. Treat every still-open branch as "safe" and you ignore branches that are clearly heading for closure but haven't crossed the line. Treat them all as "at risk" and you've just re-invented the blunt ranking with extra steps. This is exactly the problem survival analysis exists to solve.</p>
+
+    <h2>What Survival Analysis Actually Does</h2>
+    <p>Think of a graduating class instead of a branch network for a moment. At the end of each semester you ask: what fraction of the original class is still enrolled? Some students left in year one, some in year three, and most graduate — meaning they never "fail" during the window you were watching. That running fraction, plotted term by term, is a Kaplan-Meier curve. Swap "enrolled" for "open and above breakeven" and "graduated" for "still open at the end of the observation period," and you have a branch survival curve instead of an academic one.</p>
+    <p>The harder-working half of the technique is the Cox proportional hazards model, and the analogy holds: instead of just tracking the class-wide survival rate, you ask which characteristics change an individual student's odds of dropping out — commute distance, part-time work, first-year grades. For a branch, the equivalent covariates are things like footfall trend, share of transactions still done in cash, distance to the nearest agency-banking kiosk, and opex per teller. The model doesn't give you a single "close or keep" verdict. It gives you a hazard ratio: a branch with a rising digital-adoption rate in its catchment might carry twice the closure hazard of one twenty kilometres from any alternative channel, everything else held equal. That's a materially different, more defensible instruction than "bottom 15% by transaction count."</p>
+
+    <div class="article-callout">A snapshot tells you which branches look weak this quarter. A survival curve tells you which ones are actually trending toward closure — and which covariates are driving that trend, so the decision can be argued with, not just announced.</div>
+
+    <h2>The Data a Bank Already Has</h2>
+    <p>Nothing about this requires new instrumentation. The branch network already has an opening date for every location, monthly transaction and revenue figures, headcount and opex, and — for branches that have already closed — a closure date. That's the raw survival dataset: entry time, event time or censoring time, and a set of covariates in between. Getting it usable follows the same bronze-silver-gold path as everything else on our homepage: bronze is the raw monthly branch ledger sitting across however many source systems your core banking platform has accumulated; silver is a single clean branch-month table where "transactions" means the same thing everywhere; gold is the survival table itself — one row per branch, an event flag, a duration, and the covariates the hazard model will actually read.</p>
+
+    <h2>A Worked Example</h2>
+    <p>This isn't a new engine bolted onto the pipeline — it's the same one already running. The churn model behind our causal inference work already estimates something close to a hazard: the likelihood a customer relationship ends within a given window, and which interventions shift that likelihood. Survival analysis is the general framework that model sits inside. Point the same hazard machinery at branch-month data instead of customer-month data, swap "customer churns" for "branch closes," and the underlying statistics don't change — only the unit of analysis does. That's the honest version of this story: not a new capability, but an existing one aimed at a decision that's currently being made without it.</p>
+
+    <h2>How to Start, If You're a Bank Reading This</h2>
+    <p>Resist the urge to throw twenty covariates at the model on day one. Start with three that are cheap to get right — footfall trend, distance to the nearest alternative channel, and share of cash transactions — and build the entry/event/censoring table properly before anything else. Every branch that hasn't closed is censored, not safe; the model needs to know the difference. Once the hazard ranking exists alongside the profitability ranking, the closure list stops being a single sorted column and starts being a decision two people can actually argue about in a room, with numbers that hold up when someone asks why.</p>
+    <p>Every branch network has a survival curve buried inside it. Most cost-cutting mandates never bother to draw it before reaching for the red pen.</p>
+
+    <div class="article-cta">
+      <a href="index.html#contact" class="btn-primary">Talk to us about your branch network</a>
+      <a href="index.html#services" class="btn-ghost">View services</a>
+    </div>
+  </div>
+</article>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Funder<span>tech</span></div>
+  <div class="footer-meta">Harare, Zimbabwe &nbsp;·&nbsp; Data Intelligence for African Finance &nbsp;·&nbsp; © 2025</div>
+</footer>
+
+</body>
+</html>
