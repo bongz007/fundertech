@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reverse Engineering the Bank's Next Best Offer — Fundertech</title>
+<meta name="description" content="Netflix knows what you want to watch next. Why doesn't your bank know what you want to buy next? A look at recommendation engines in banking, built from real segmentation work.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">
+    <a href="index.html" class="nav-logo">Funder<span>tech</span></a>
+    <span class="nav-live"><span class="live-dot"></span>live</span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="index.html#results">Results</a></li>
+    <li><a href="index.html#services">Services</a></li>
+    <li><a href="index.html#approach">Approach</a></li>
+    <li><a href="recommendation-engines-in-banking.html">Insights</a></li>
+    <li><a href="index.html#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<article>
+  <div class="article-hero">
+    <p class="article-eyebrow">Insights · Predictive Analytics</p>
+    <h1 class="article-title">Reverse Engineering the Bank's Next Best Offer</h1>
+    <div class="article-meta">
+      <span>Fundertech</span>
+      <span>·</span>
+      <span>Recommendation Engines</span>
+      <span>·</span>
+      <span>8 min read</span>
+    </div>
+  </div>
+
+  <div class="article-body">
+    <p class="article-hook">Netflix knows what you want to watch before you do. Amazon slides the right product into your cart before you finish typing. Your bank, meanwhile, mails you a personal loan leaflet the same month you finished paying one off. Somewhere between Silicon Valley and the banking hall, the recommendation stopped working.</p>
+
+    <p>That's strange, because the bank has better data than either of them. Netflix knows what you watch. Amazon knows what you browse. A bank knows what you earn, when you earn it, what you spend it on, when you're short, and what you do the week before payday. It is, without exaggeration, the richest behavioural dataset most institutions will ever sit on top of — and most of it is used for exactly one thing: deciding whether to say no to a loan.</p>
+
+    <h2>The Business Challenge</h2>
+    <p>Cross-sell in most banks still works the way it did twenty years ago: pick a product, pick a list of customers who technically qualify, blast the campaign, measure the response rate, move on. It isn't personalised so much as it is aimed — and aimed badly, because "qualifies for a product" and "wants a product" are two very different customers wearing the same KYC file.</p>
+    <p>The cost of getting this wrong isn't just a wasted SMS budget. It's trust. Offer a credit limit increase to someone who's already struggling and you don't get a cross-sell — you get a complaint, or worse, a customer who quietly leaves. We've written before about the <a href="index.html#results" style="color:inherit;">"sleeping dog" effect</a> in credit interventions: customers who were actively harmed by an offer that looked good on a scorecard. A recommendation engine that doesn't account for that isn't intelligent. It's just faster spam.</p>
+
+    <h2>What a Recommendation Engine Actually Does</h2>
+    <p>Strip away the machine learning vocabulary and a recommendation engine is answering one question for every customer: <em>of everything we could offer this person, what ranks highest for them specifically?</em> Not "does this customer qualify" — "what's the best-ranked next thing for this exact human."</p>
+    <p>There are two basic ways to answer that. The first is <strong>collaborative filtering</strong> — think of it as asking the customer standing next to you in the queue. If a thousand customers who bank, save, and spend like you also opened a fixed deposit account within six months, that's a strong signal for you too, even if you've never expressed interest in one. The engine never needs to understand <em>why</em> — it just needs enough customers who behave alike.</p>
+    <p>The second is <strong>content-based filtering</strong> — reading the label instead of asking the neighbour. This matches product attributes to what a customer already holds: a customer with a salary account and no insurance product is a different recommendation problem than one with three loans and a dormant savings account. It doesn't need a crowd to learn from — it just needs the product catalogue and the customer's own history.</p>
+    <p>Every serious production system — Netflix included — runs a hybrid of the two, because neighbours are noisy and labels are incomplete on their own. In banking specifically, that hybrid needs a third ingredient neither Netflix nor Amazon has to deal with: a suppression layer. Some customers should be excluded from an offer entirely, not because they wouldn't respond, but because responding would hurt them. That's the difference between a recommendation engine that sells and one that's actually fit to sit inside a regulated institution.</p>
+
+    <div class="article-callout">Every dataset has a story to tell, because data quietly adjusts itself to reflect the users and the business decisions behind it. A recommendation engine is just a way of asking that story the right question.</div>
+
+    <h2>The Data a Bank Already Has</h2>
+    <p>Here's the part that surprises people: the hard part was never the algorithm. Collaborative filtering and content-based scoring are well-understood, decades-old techniques. The hard part is whether raw transaction logs can reliably become something a model can read every single night.</p>
+    <p>That's what a medallion pipeline is for. Bronze is the raw ingest — every swipe, deposit, standing order, and branch visit, watermarked and versioned so nothing gets silently reprocessed twice. Silver is where that mess becomes trustworthy — deduplicated, standardised, a loan repayment recognisable as a loan repayment regardless of which core banking module logged it. Gold is where it becomes useful — RFM segments, product affinity scores, life-stage signals. A recommendation engine doesn't read bronze. It reads gold, and gold is only as good as the pipeline underneath it.</p>
+
+    <h2>A Worked Example</h2>
+    <p>On one retail book we segmented roughly 115,000 customers using recency, frequency, and monetary value — the classic RFM approach — into four tiers: high value, at-risk, "sleeping dog," and dormant. On its own, that's just a report. The moment those segments became input features for a next-product-to-buy model, they turned into something a recommendation engine could act on: a high-value customer with no insurance product looks nothing like a dormant customer with three unused facilities, and they should never receive the same offer.</p>
+    <p>We didn't need Netflix-scale data to make that useful. We needed the segmentation done honestly, and we needed a way to prove the recommendation actually worked rather than just looked plausible on a dashboard. That's the same discipline behind the T-Learner uplift work that surfaced a 15% profit gain over traditional scoring on credit interventions elsewhere in this book — measure the counterfactual, not just the response rate.</p>
+
+    <h2>How to Start, If You're a Bank Reading This</h2>
+    <p>You do not need a Netflix-sized data team to begin. You need three things, in this order: a segmentation you trust, a suppression rule for customers who shouldn't be offered anything right now, and a way to measure uplift rather than raw response. Most institutions already have the first ingredient sitting in a report nobody automated. Start there. Layer content-based rules on top before reaching for full collaborative filtering — it's simpler to explain to a risk committee, and simpler is what gets shipped.</p>
+    <p>Every transaction ledger a bank holds has a story to tell about what a customer wants next. Most institutions just haven't asked it the right question yet.</p>
+
+    <div class="article-cta">
+      <a href="index.html#contact" class="btn-primary">Talk to us about your data</a>
+      <a href="index.html#services" class="btn-ghost">View services</a>
+    </div>
+  </div>
+</article>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Funder<span>tech</span></div>
+  <div class="footer-meta">Harare, Zimbabwe &nbsp;·&nbsp; Data Intelligence for African Finance &nbsp;·&nbsp; © 2025</div>
+</footer>
+
+</body>
+</html>
