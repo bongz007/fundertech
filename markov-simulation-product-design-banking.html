@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reverse Engineering Markov Simulations for Product Design in Banking — Fundertech</title>
+<meta name="description" content="Survival analysis tells you how long until a customer leaves. It has nothing to say about where they go if they don't. Markov chains fill in exactly that gap — and product design lives inside it.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">
+    <a href="index.html" class="nav-logo">Funder<span>tech</span></a>
+    <span class="nav-live"><span class="live-dot"></span>live</span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="index.html#results">Results</a></li>
+    <li><a href="index.html#services">Services</a></li>
+    <li><a href="index.html#approach">Approach</a></li>
+    <li><a href="insights.html">Insights</a></li>
+    <li><a href="index.html#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<article>
+  <div class="article-hero">
+    <p class="article-eyebrow">Insights · Predictive Analytics</p>
+    <h1 class="article-title">Reverse Engineering Markov Simulations for Product Design in Banking</h1>
+    <div class="article-meta">
+      <span>Fundertech</span>
+      <span>·</span>
+      <span>Product Design</span>
+      <span>·</span>
+      <span>8 min read</span>
+    </div>
+  </div>
+
+  <div class="article-body">
+    <p class="article-hook">Survival analysis answers one question: how long until the customer leaves. It has nothing to say about where they go if they don't. A customer who quietly downgrades from a current account into a dormant savings account, and a customer who upgrades into a premium bundle, both count as "still alive" to a hazard model — and product design lives entirely in the difference between those two outcomes.</p>
+
+    <p>That gap matters because most product decisions in banking aren't "will this customer leave." They're "if we restructure this fee, bundle in this feature, or raise this minimum balance, which direction does the customer base drift over the next eighteen months." A hazard model, on its own, can't answer that. A Markov chain can — because a Markov chain doesn't just track whether a customer is still alive, it tracks which state they're in and where they move to next.</p>
+
+    <h2>The Business Challenge</h2>
+    <p>A fee restructuring can look completely fine on a thirty-day dashboard. Complaints don't spike, closures don't spike, and the product team moves on. Eighteen months later, retail deposits have quietly drifted downward — not because customers closed accounts in protest, but because the new fee nudged a percentage of the current-account base into dormancy each month, and dormancy is a slow, invisible leak rather than a headline event. Nobody connects the two, because nobody modelled the multi-step path between "fee changes" and "deposits shrink." That path is exactly what a transition matrix makes visible before the product ships.</p>
+
+    <h2>What a Markov Simulation Actually Does</h2>
+    <p>Think of a weather forecaster who doesn't try to predict tomorrow's weather everywhere at once, but instead says: given that it's raining today, there's a 30% chance of rain tomorrow and a 70% chance of clearing up. A transition matrix applies exactly that logic to a customer's product tier instead of the sky — given a customer is in the Current Account tier this month, there's some probability they stay, some probability they move to Premium, and some probability they slide into Dormant. Do that for every tier against every other tier, and you have the full matrix.</p>
+    <p>Run that matrix forward long enough — a thousand synthetic customers, a hundred simulated months — and the mix of tiers settles into a stable distribution regardless of where any individual customer started. That's the steady state: the long-run market share of each product tier under the current rules of the game. It's the single most useful number a Markov simulation produces, because a proposed product change is really just a bet on how far it can move that steady state.</p>
+    <p>To test the bet, you don't touch the whole matrix — you hand-perturb the specific cells the product change would plausibly affect. A higher minimum balance fee raises the probability of moving from Current into Dormant. A free insurance bolt-on raises the probability of moving from Current into Premium. Re-run the simulation with the perturbed matrix, compare the new steady state to the old one, and the projected shift in the tier mix — and the deposit and fee revenue that comes with it — is sitting in front of you before a single customer has seen the change.</p>
+
+    <div class="article-callout">A hazard model tells you a customer is still alive. A Markov chain tells you whether "alive" means climbing toward Premium or drifting toward Dormant — and a product design decision is really a bet on which direction the matrix bends.</div>
+
+    <h2>The Data a Bank Already Has</h2>
+    <p>The raw material is the same monthly account-tier snapshot behind everything else on this site, just read differently. Bronze is the raw per-customer, per-month tier record across whatever core banking systems the bank runs. Silver is that record standardised into one consistent tier taxonomy — "Premium" needs to mean the same thing whether the customer opened the account through FLEXCUBE or a digital channel. Gold is the transition table itself: for every customer-month, which tier they were in and which tier they moved to next. That table is the entire input a Markov model needs.</p>
+
+    <h2>A Worked Example</h2>
+    <p>This isn't a new engine either — it's the same family as the last two pieces in this series, widened. Our branch survival work models one transition: open to closed, a single absorbing event. A Markov chain is the general case of that same hazard machinery, applied across every state a bank's product suite actually has, not just alive-or-dead. And the states don't need to be invented from scratch: the RFM segmentation behind our recommendation-engine work — high value, at-risk, sleeping dog, dormant — is already a usable state space. A transition matrix built over exactly those four segments answers a question no snapshot report can: does a proposed product change move customers up that ladder, or quietly down it, three and six months out.</p>
+
+    <h2>How to Start, If You're a Bank Reading This</h2>
+    <p>Don't start by inventing a bespoke set of product states. Start with segments you already trust — the RFM tiers, or a simple three- or four-tier account structure — and build the customer-month from-to table before anything fancier. Validate the matrix against a naive "most customers stay where they are" baseline before trusting it. Then use it the way it's actually useful: to rank two or three competing product designs by projected steady-state shift, before committing to a live pilot on real customers. It doesn't replace the A/B test — it tells you which designs are worth the cost of running one.</p>
+    <p>Every product tier a bank designs is really a bet on which direction a transition matrix bends. Most product teams only find out which way it bent after the numbers have already moved.</p>
+
+    <div class="article-cta">
+      <a href="index.html#contact" class="btn-primary">Talk to us about your product roadmap</a>
+      <a href="index.html#services" class="btn-ghost">View services</a>
+    </div>
+  </div>
+</article>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Funder<span>tech</span></div>
+  <div class="footer-meta">Harare, Zimbabwe &nbsp;·&nbsp; Data Intelligence for African Finance &nbsp;·&nbsp; © 2025</div>
+</footer>
+
+</body>
+</html>
