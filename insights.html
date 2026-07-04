@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Insights — Fundertech</title>
+<meta name="description" content="Notes on data intelligence in African finance — recommendation engines, concentration risk, and the pipelines underneath both.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .insights-list { display: flex; flex-direction: column; }
+  .insight-row {
+    display: block;
+    padding: 36px 0;
+    border-top: 1px solid var(--grey-2);
+    text-decoration: none;
+    color: inherit;
+    transition: background 0.15s;
+  }
+  .insight-row:hover { background: var(--grey-1); margin: 0 -48px; padding: 36px 48px; }
+  .insight-tag {
+    display: inline-block;
+    font-size: 10px;
+    color: var(--grey-3);
+    border: 1px solid var(--grey-2);
+    padding: 2px 8px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    font-weight: 500;
+  }
+  .insight-title { font-size: 18px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 8px; }
+  .insight-dek { font-size: 12px; color: #4A4A4A; font-weight: 500; line-height: 1.8; }
+  @media (max-width: 768px) {
+    .insight-row:hover { margin: 0; padding: 36px 0; background: transparent; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">
+    <a href="index.html" class="nav-logo">Funder<span>tech</span></a>
+    <span class="nav-live"><span class="live-dot"></span>live</span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="index.html#results">Results</a></li>
+    <li><a href="index.html#services">Services</a></li>
+    <li><a href="index.html#approach">Approach</a></li>
+    <li><a href="insights.html">Insights</a></li>
+    <li><a href="index.html#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<section style="border-bottom:none;">
+  <div class="section-inner" style="padding-top:140px;">
+    <div class="section-label">Insights</div>
+    <div class="insights-list">
+
+      <a class="insight-row" href="tenant-concentration-risk-reits.html">
+        <div class="insight-tag">Executive Intelligence</div>
+        <div class="insight-title">Reverse Engineering Tenant Concentration Risk</div>
+        <p class="insight-dek">A REIT is a bank that collects rent instead of interest — and it has exactly the same blind spot. What the concentration-risk engine built for banking depositors reveals when pointed at a rent roll instead.</p>
+      </a>
+
+      <a class="insight-row" href="recommendation-engines-in-banking.html">
+        <div class="insight-tag">Predictive Analytics</div>
+        <div class="insight-title">Reverse Engineering the Bank's Next Best Offer</div>
+        <p class="insight-dek">Netflix knows what you want to watch next. Why doesn't your bank know what you want to buy next? A look at recommendation engines, built from real RFM segmentation and uplift work.</p>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Funder<span>tech</span></div>
+  <div class="footer-meta">Harare, Zimbabwe &nbsp;·&nbsp; Data Intelligence for African Finance &nbsp;·&nbsp; © 2025</div>
+</footer>
+
+</body>
+</html>

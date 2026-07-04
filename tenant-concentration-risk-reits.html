@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reverse Engineering Tenant Concentration Risk — Fundertech</title>
+<meta name="description" content="A REIT and a bank have the same blind spot: both collect steady cash flow from a portfolio of counterparties, and both find out the hard way when one counterparty is holding up the whole structure.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">
+    <a href="index.html" class="nav-logo">Funder<span>tech</span></a>
+    <span class="nav-live"><span class="live-dot"></span>live</span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="index.html#results">Results</a></li>
+    <li><a href="index.html#services">Services</a></li>
+    <li><a href="index.html#approach">Approach</a></li>
+    <li><a href="insights.html">Insights</a></li>
+    <li><a href="index.html#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<article>
+  <div class="article-hero">
+    <p class="article-eyebrow">Insights · Executive Intelligence</p>
+    <h1 class="article-title">Reverse Engineering Tenant Concentration Risk</h1>
+    <div class="article-meta">
+      <span>Fundertech</span>
+      <span>·</span>
+      <span>REITs &amp; Property Funds</span>
+      <span>·</span>
+      <span>7 min read</span>
+    </div>
+  </div>
+
+  <div class="article-body">
+    <p class="article-hook">A shopping mall and a bank have more in common than either likes to admit. Both collect steady cash flow from a portfolio of counterparties. Both quietly hope no single counterparty is holding up the whole structure. And both, historically, have found out the hard way — after the tenant vacates or the depositor pulls their float — exactly how concentrated they'd become.</p>
+
+    <p>A REIT is, functionally, a bank that collects rent instead of interest. It takes in steady payments from a portfolio of counterparties, reports a healthy headline number, and hopes the underlying mix never gets tested. The headline number for a REIT is occupancy. And occupancy is a dangerously comfortable metric, because a building can be 95% occupied and still be one tenant away from a rental income collapse — if that one tenant happens to hold a third of the lettable space.</p>
+
+    <h2>The Business Challenge</h2>
+    <p>Boards look at occupancy rate, weighted average lease expiry, and gross rental income, and reasonably conclude the portfolio is healthy. None of those three numbers, on their own, answer the question that actually matters in a downturn: <em>who blinks if this one tenant leaves?</em> A mall can be full and still fragile, the same way a bank's book can look diversified on paper while a handful of depositors quietly fund half its balance sheet.</p>
+    <p>We've built this exact check before — for banks, not malls. The concentration engine behind our banking work (visible on our homepage as <code>portfolio_concentration_check --top=20</code>) ranks depositors by exposure, flags when too much of the book sits with too few counterparties, and turns that into a board-ready alert. Nothing about that logic is bank-specific. Point the same engine at a rent roll instead of a deposit ledger, and it answers the identical question for a REIT.</p>
+
+    <h2>What Concentration Risk Analysis Actually Does</h2>
+    <p>Picture the property's income statement as a see-saw held up by ten tenants. If two of those tenants are twice the size of the other eight combined, the see-saw doesn't wobble when a small tenant steps off. It collapses when one of the big two does. Concentration analysis is just the discipline of finding out, in advance, which tenants are the big two — before the see-saw tells you the hard way.</p>
+    <p>Mechanically, it's a ranking exercise: sort tenants by their share of gross rental income, take a running cumulative total, and flag the point where a small number of tenants account for a disproportionate share of revenue. Banks use a rule of thumb for depositor concentration; REITs need the same discipline applied to two dimensions at once — income concentration <em>and</em> lease-expiry concentration, because a portfolio can be well-diversified by tenant and still fragile if half those leases happen to expire in the same eighteen-month window.</p>
+
+    <div class="article-callout">Occupancy tells you how full the building is. Concentration tells you how much of the building you can afford to lose at once. Boards usually only ask the first question.</div>
+
+    <h2>The Data a REIT Already Has</h2>
+    <p>None of this requires new instrumentation. A REIT's property management system already holds the rent roll: tenant name, gross lettable area, monthly rental income, sector classification, lease start and expiry date, and payment or arrears history. That's bronze data — raw, scattered across buildings and possibly across property managers who name things differently. Silver is standardising it into one clean rent roll across the whole portfolio. Gold is where it becomes a board input: tenant-level exposure ranked and scored, lease-expiry buckets flagged, arrears trends layered on top of both.</p>
+
+    <h2>A Worked Example</h2>
+    <p>The version of this we've shipped ranks the top 20 counterparties in a book, builds an exposure heatmap, and raises an alert wherever concentration crosses a set threshold — three alerts, on the run shown on our homepage, each one turned into a line in a board deck rather than a number buried in an appendix. For a REIT, the inputs change — tenants instead of depositors, gross rental income instead of deposit balances, lease expiry instead of account tenure — but the output a board actually needs is the same: not "are we diversified," but "which specific counterparties, if they left tomorrow, would we need a plan for."</p>
+
+    <h2>How to Start, If You're a REIT Reading This</h2>
+    <p>You don't need a data science team to begin — you need your rent roll in one place and two rankings run against it: tenants by share of gross rental income, and tenants by share of lettable area, because the two rarely agree and the gap between them is informative on its own. Set a threshold — most banks work off "no single counterparty above X% of the book," and there's no reason a REIT board shouldn't adopt the same discipline for its ten largest tenants. Then layer in lease-expiry clustering, because a well-diversified income statement can still walk itself into a renewal cliff eighteen months out.</p>
+    <p>Every rent roll has a story to tell about which tenants are quietly holding the building up. Most boards are still reading the occupancy rate instead.</p>
+
+    <div class="article-cta">
+      <a href="index.html#contact" class="btn-primary">Talk to us about your portfolio</a>
+      <a href="index.html#services" class="btn-ghost">View services</a>
+    </div>
+  </div>
+</article>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Funder<span>tech</span></div>
+  <div class="footer-meta">Harare, Zimbabwe &nbsp;·&nbsp; Data Intelligence for African Finance &nbsp;·&nbsp; © 2025</div>
+</footer>
+
+</body>
+</html>
