@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reverse Engineering the Fab Shop with Queueing Theory — Fundertech</title>
+<meta name="description" content="A queue at a bank teller and a queue of aluminum brackets waiting for a welder are the same mathematical object wearing different overalls.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">
+    <a href="index.html" class="nav-logo">Funder<span>tech</span></a>
+    <span class="nav-live"><span class="live-dot"></span>live</span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="index.html#results">Results</a></li>
+    <li><a href="index.html#services">Services</a></li>
+    <li><a href="index.html#approach">Approach</a></li>
+    <li><a href="insights.html">Insights</a></li>
+    <li><a href="index.html#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<article>
+  <div class="article-hero">
+    <p class="article-eyebrow">Insights · Operations Analytics</p>
+    <h1 class="article-title">Reverse Engineering the Fab Shop with Queueing Theory</h1>
+    <div class="article-meta">
+      <span>Fundertech</span>
+      <span>·</span>
+      <span>Aluminum Fabrication</span>
+      <span>·</span>
+      <span>7 min read</span>
+    </div>
+  </div>
+
+  <div class="article-body">
+    <p class="article-hook">A queue at a bank teller and a queue of aluminum brackets waiting on a welder are the same mathematical object wearing different overalls. Nobody would run a call centre by guessing how many agents to staff and hoping. Most fabrication shops still schedule welding bays exactly that way — and quote every job "two weeks" regardless of how full the shop actually is.</p>
+
+    <p>Custom fabrication is a hard business to schedule honestly. Jobs arrive at irregular intervals, in wildly different sizes, and move through the same handful of stations — cutting, welding, bending, finishing, assembly, QC — in whatever order the job calls for. Most shops manage that chaos with a project tracker and a manager's intuition for "how busy we are." Queueing theory replaces the intuition with a model that tells you, station by station, exactly where a job is going to sit and wait — before the customer calls asking why it's late.</p>
+
+    <h2>The Business Challenge</h2>
+    <p>The instinct in a busy shop is to say yes to every order that comes in — more jobs, more revenue. The problem is that concurrent jobs share the same finite stations, and every job accepted past capacity doesn't just wait for its own turn, it pushes every job already in the queue further back too. The shop feels the same amount of "busy" whether it's carrying a healthy backlog or a backlog that's quietly strangling its own throughput — the difference only shows up three weeks later, as missed delivery dates that get blamed on "we're just slammed" instead of diagnosed to a specific station.</p>
+
+    <h2>What Queueing Theory Actually Does</h2>
+    <p>Model the shop as a chain of queues, not one big pile of work. Cutting is a queue with its own arrival rate, its own service time per job, and a fixed number of machines. Its output becomes Welding's input — Welding is the next queue in the chain, with its own arrival rate, service time, and number of welders. Chain enough of these together — cutting, welding, bending, finishing, assembly, QC — and you have a network, not a single bottleneck to eyeball.</p>
+    <p>The part that actually explains why shops feel fine at 85% busy and fall apart at 97% busy is a simple, well-known result from industrial engineering — Kingman's approximation:</p>
+    <p style="font-family:var(--mono);font-size:13px;background:var(--grey-1);padding:16px 20px;border-left:2px solid var(--mint);">Wait ≈ [(Cₐ² + Cₛ²) / 2] × [ρ / (1 − ρ)] × service time</p>
+    <p>Cₐ and Cₛ are how variable the job arrivals and job sizes are; ρ is how utilised the station is. The term doing all the damage is ρ / (1 − ρ) — it barely moves as utilisation climbs from 50% to 80%, then goes nearly vertical between 90% and 99%. That's the same curve behind a supermarket checkout that feels totally fine at 85% of tills open and grinds to a stop the moment the last till opens late. A welding bay running at 92% utilisation isn't "almost fine" — it's close to the part of the curve where a small increase in incoming work causes a large increase in wait time.</p>
+
+    <div class="article-callout">Utilisation and wait time don't move together in a straight line. The last few percentage points of "busy" cost far more than all the ones before them — which is exactly the range most fabrication shops operate in without knowing it.</div>
+
+    <p>Once every station has a utilisation number, the bottleneck stops being a guess — it's whichever station has the highest ρ, and in a chain of queues, the overall project lead time is dominated by that one station almost regardless of how fast the others run. This is the same logic as Goldratt's Theory of Constraints, arrived at through the queueing math instead of the shop-floor aphorism: fix the constraint station first, because every other improvement is close to irrelevant until it does.</p>
+
+    <h2>The One Formula Worth Memorising: Little's Law</h2>
+    <p>L = λW. Average work-in-progress equals the arrival rate of jobs times the average time each job spends in the system. It's the formal reason accepting every order that comes in backfires: taking on more concurrent jobs than the shop's stations can absorb doesn't add capacity, it adds WIP — and WIP directly inflates the lead time of every job already in the building, not just the new one. It's also the cleanest tool for setting a WIP limit per station, the same principle behind Kanban and CONWIP systems on assembly lines: cap how much work is allowed to sit in front of a station, and lead times stop being a function of how many orders sales happened to book this month.</p>
+
+    <h2>What This Looks Like on the Shop Floor</h2>
+    <p>Picture a shop with Cutting running at 65% utilisation, Welding at 92%, and Finishing at 70%. Every job, regardless of complexity, gets quoted the same flat two-week lead time. In reality, a job that's cutting-heavy and welding-light clears the shop close to schedule; a job that's welding-heavy sits in the one queue closest to the steep part of the curve, and no amount of expediting elsewhere in the shop moves it faster. A queue-aware quote — informed by which stations a given job actually needs and how loaded those specific stations are right now — replaces one flat promise with an honest one, and tells the shop exactly where to add a second welding bay before it tells them with a missed delivery.</p>
+
+    <h2>How to Start, If You Run a Fab Shop</h2>
+    <p>You don't need a simulation model on day one. You need timestamps: when a job arrives at each station, and when it leaves. That's enough to calculate utilisation per station and find the bottleneck without anything more sophisticated than a spreadsheet. Once that's trustworthy, move to discrete-event simulation only when the network gets genuinely complicated — rework loops from failed QC, multiple job types with different routings, rush orders jumping the queue — because that's where closed-form queueing math stops being tractable and a simulator earns its keep, letting you test "add a second welder" against real historical demand before spending the capital.</p>
+    <p>Every shop floor has a queueing network hidden inside its job tracker. Most only discover where the bottleneck sits when a customer calls asking why the job is late.</p>
+
+    <div class="article-cta">
+      <a href="index.html#contact" class="btn-primary">Talk to us about your operation</a>
+      <a href="index.html#services" class="btn-ghost">View services</a>
+    </div>
+  </div>
+</article>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Funder<span>tech</span></div>
+  <div class="footer-meta">Harare, Zimbabwe &nbsp;·&nbsp; Data Intelligence for African Finance &nbsp;·&nbsp; © 2025</div>
+</footer>
+
+</body>
+</html>
