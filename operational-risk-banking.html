@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reverse Engineering Operational Risk — Fundertech</title>
+<meta name="description" content="Credit risk gets a scorecard recalculated every night. Operational risk usually gets a spreadsheet updated once a quarter for the regulator — despite sitting on more data than either.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">
+    <a href="index.html" class="nav-logo">Funder<span>tech</span></a>
+    <span class="nav-live"><span class="live-dot"></span>live</span>
+  </div>
+  <button class="nav-toggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="nav-links">
+    <span></span><span></span><span></span>
+  </button>
+  <ul class="nav-links" id="nav-links">
+    <li><a href="index.html#results">Results</a></li>
+    <li><a href="index.html#services">Services</a></li>
+    <li><a href="index.html#approach">Approach</a></li>
+    <li><a href="insights.html">Insights</a></li>
+    <li><a href="index.html#contact">Contact</a></li>
+  </ul>
+</nav>
+<script src="nav.js" defer></script>
+
+<article>
+  <div class="article-hero">
+    <p class="article-eyebrow">Insights · Risk Analytics</p>
+    <h1 class="article-title">Reverse Engineering Operational Risk</h1>
+    <div class="article-meta">
+      <span>Fundertech</span>
+      <span>·</span>
+      <span>Core Banking Data</span>
+      <span>·</span>
+      <span>9 min read</span>
+    </div>
+  </div>
+
+  <div class="article-body">
+    <p class="article-hook">Credit risk gets a scorecard recalculated every night. Market risk gets a Value-at-Risk model that moves with the market. Operational risk — the risk that a system goes down, a process breaks, or someone on the inside makes a very expensive change — usually gets a spreadsheet, updated once a quarter, in time for the regulatory return.</p>
+
+    <p>That's a strange gap, because operational risk is arguably the category a bank has the <em>most</em> data about. Every transaction reversal, every system outage, every emergency change to a policy parameter is already logged somewhere in the core banking system. Nobody's short on data here. Most banks are short on a model that actually reads it.</p>
+
+    <h2>The Business Challenge</h2>
+    <p>Basel's Standardized Measurement Approach — the formula most banks actually use to hold capital against operational risk — multiplies gross income by a fixed factor. It doesn't ask whether the bank's controls are good or terrible, or whether last year was quiet or nearly catastrophic. It's the operational-risk equivalent of ranking branches by last quarter's footfall: fast, defensible on a regulatory return, and disconnected from the thing everyone actually wants to know.</p>
+    <p>Part of why the blunt formula persists is that operational losses are a genuinely awkward modelling problem. Credit losses arrive in a steady, well-behaved stream. Operational losses are rare, lumpy, and wildly heterogeneous — a teller's keying error and a core-banking outage both get filed under "operational risk," and they have almost nothing statistically in common.</p>
+
+    <h2>The Mechanism: Loss Distribution Approach</h2>
+    <p>The technique banks reach for once they move past the blunt formula treats frequency and severity as two separate questions, the way an actuary would: how often does something break, and how bad is it when it does? Frequency — the number of loss events in a year — is modelled with a Poisson or negative binomial distribution. Severity — the size of each event — gets a lognormal or generalised Pareto distribution, because op-risk severity has genuinely fat tails: one serious incident can dwarf a thousand routine ones. Simulate both distributions forward together, thousands of times, and the two combine into a single aggregate annual loss distribution. Read the 99.9th percentile off that curve, and that's the capital number — now actually shaped by a bank's own loss history instead of a multiplier applied to everyone equally.</p>
+
+    <h2>Why the Tail Is the Whole Story</h2>
+    <p>For most of the models in this series, the average matters — the average customer, the average branch, the average utilisation. Operational risk inverts that. The average loss event is almost irrelevant to how much capital a bank needs; a hundred small teller errors are a rounding error next to one event in the tail. That's what Extreme Value Theory is for: instead of fitting a distribution to every loss, it fits one specifically to the losses above a chosen threshold — the rare, large ones — because that's the part of the curve capital actually has to cover.</p>
+
+    <h2>The One Change That Breaks the Model</h2>
+    <p>The sharpest illustration of that tail isn't a fraud incident or a system outage — it's a rogue policy change. A mis-keyed transaction has bounded impact: one account, one amount, caught and reversed. A bad or unauthorised change to a business rule — a credit limit policy, a pricing table, a fee-waiver parameter — has a multiplier blast radius instead. It silently affects every transaction processed under that rule until someone notices, which could be hours or months later. One change, thousands of downstream transactions, all wrong in the same direction.</p>
+    <p>Catching this is a genuinely different data science problem from everything else in this article, because it means watching the <em>change-management process itself</em>, not customer transactions. A core banking system already logs who made a change, when, and whether it went through proper approval — the raw material is sitting there unread. The useful signals are almost embarrassingly simple: a rate of emergency or out-of-band changes rising above baseline, changes made without a linked change ticket, the same person proposing and approving a change (a segregation-of-duties violation), changes landing outside business hours, or — the subtlest one — a policy that's been stable for years suddenly changing repeatedly. The change frequency itself is the signal, before anyone has even assessed whether a given change was correct.</p>
+
+    <div class="article-callout">A model built on the average loss protects a bank from a bad Tuesday. Operational risk capital exists for the one event that isn't a Tuesday at all — and the data that flags it is sitting in the change log, not the transaction log.</div>
+
+    <h2>Leading Indicators, Not Just Historical Losses</h2>
+    <p>Everything so far models losses that already happened. The more useful half of operational risk analytics predicts them before they land, using Key Risk Indicators — override rates, reconciliation breaks, system downtime minutes, complaint volume — regressed against future loss events. The shape of this is identical to the hazard ratios in our branch survival work: a business unit with a rising override rate carries measurably higher risk of a loss event next quarter, the same way a branch with a particular covariate carries a higher closure hazard. This isn't a new capability invented for this article, either — <a href="index.html#services" style="color:inherit;">SLA breach prediction</a> is already on our services list, and it's exactly this discipline: a KRI-style leading-indicator model, just aimed at breach events specifically. Operational risk modelling is that same approach widened to loss severity generally, not a different tool.</p>
+
+    <h2>The Data a Core Banking System Already Has</h2>
+    <p>Bronze is the raw material scattered across modules: exception and reversal logs, override logs, change-management records, GL suspense entries, complaint registers. None of it agrees on a taxonomy by default. Silver is mapping all of it onto a single, consistent event-type classification — Basel's own categories (internal fraud, external fraud, business disruption and system failures, execution and delivery failures, and so on) work well precisely because they force every source system's version of "something went wrong" into the same language. Gold is where it becomes usable: a frequency-and-severity table by event type ready for the LDA, and a KRI panel — including the change-log signals above — ready for the leading-indicator model.</p>
+
+    <h2>How to Start, If You're a Bank Reading This</h2>
+    <p>Don't start with the Loss Distribution Approach. Most banks don't yet have the prerequisite — a clean, consistently-tagged loss-event register going back several years — and without it, a frequency/severity model is fitting noise. Build that register first. The KRI side, meanwhile, can deliver value immediately, because it runs on process data the core banking system is already producing today: no historical loss data required, just a handful of segregation-of-duties and change-frequency rules to start watching.</p>
+    <p>Every core banking system is writing its own loss event register in real time, one override and one policy change at a time. Most banks only read it after the regulator — or the incident — asks them to.</p>
+
+    <div class="article-cta">
+      <a href="index.html#contact" class="btn-primary">Talk to us about your risk function</a>
+      <a href="index.html#services" class="btn-ghost">View services</a>
+    </div>
+  </div>
+</article>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Funder<span>tech</span></div>
+  <form id="newsletter-form" class="newsletter-form" novalidate>
+    <input type="email" name="email" placeholder="Get new Insights by email" required>
+    <button type="submit">Subscribe</button>
+    <span class="newsletter-status" id="newsletter-status"></span>
+  </form>
+  <div class="footer-meta">Harare, Zimbabwe &nbsp;·&nbsp; Data Intelligence for African Finance &nbsp;·&nbsp; © 2025</div>
+</footer>
+<script src="newsletter.js" defer></script>
+
+</body>
+</html>
